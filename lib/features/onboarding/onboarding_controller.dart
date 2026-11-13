@@ -5,6 +5,8 @@ import '../../domain/models.dart';
 
 enum OnboardingStep { welcome, profile, emailApp, recipients, leaveMethod, review }
 
+const _keep = Object();
+
 class OnboardingDraft {
   const OnboardingDraft({
     this.step = OnboardingStep.welcome,
@@ -12,7 +14,9 @@ class OnboardingDraft {
     this.companyName = '',
     this.emailApp = 0,
     this.recipients = const [],
+    this.cc = const [],
     this.whatsapp = '',
+    this.whatsappName,
     this.policy = const PolicyDraft(),
     this.imported = false,
     this.saving = false,
@@ -23,8 +27,10 @@ class OnboardingDraft {
   final String userName;
   final String companyName;
   final int emailApp; // index into emailAppOptions
-  final List<String> recipients;
+  final List<String> recipients; // To
+  final List<String> cc;
   final String whatsapp;
+  final String? whatsappName; // set when the number came from contacts
   final PolicyDraft policy;
   final bool imported; // policy came from a PDF
   final bool saving;
@@ -36,7 +42,9 @@ class OnboardingDraft {
     String? companyName,
     int? emailApp,
     List<String>? recipients,
+    List<String>? cc,
     String? whatsapp,
+    Object? whatsappName = _keep,
     PolicyDraft? policy,
     bool? imported,
     bool? saving,
@@ -49,7 +57,10 @@ class OnboardingDraft {
         companyName: companyName ?? this.companyName,
         emailApp: emailApp ?? this.emailApp,
         recipients: recipients ?? this.recipients,
+        cc: cc ?? this.cc,
         whatsapp: whatsapp ?? this.whatsapp,
+        whatsappName:
+            identical(whatsappName, _keep) ? this.whatsappName : whatsappName as String?,
         policy: policy ?? this.policy,
         imported: imported ?? this.imported,
         saving: saving ?? this.saving,
@@ -89,8 +100,11 @@ class OnboardingController extends Notifier<OnboardingDraft> {
   void setUserName(String v) => state = state.copyWith(userName: v);
   void setCompany(String v) => state = state.copyWith(companyName: v);
   void setEmailApp(int i) => state = state.copyWith(emailApp: i);
-  void setWhatsapp(String v) => state = state.copyWith(whatsapp: v);
   void setPolicy(PolicyDraft p) => state = state.copyWith(policy: p);
+
+  /// [name] is the contact name when picked from contacts, else null.
+  void setWhatsapp(String number, String? name) =>
+      state = state.copyWith(whatsapp: number, whatsappName: name);
 
   /// Called with a policy extracted from a PDF; moves on to the review step.
   void importPolicy(PolicyDraft p) {
@@ -98,16 +112,22 @@ class OnboardingController extends Notifier<OnboardingDraft> {
     next();
   }
 
-  /// Returns false when the address is invalid or already added.
-  bool addRecipient(String email) {
+  /// Returns false when the address is invalid or already added (as To or Cc).
+  bool addRecipient(String email, {bool cc = false}) {
     final e = email.trim().toLowerCase();
-    if (!isValidEmail(e) || state.recipients.contains(e)) return false;
-    state = state.copyWith(recipients: [...state.recipients, e]);
+    if (!isValidEmail(e) || state.recipients.contains(e) || state.cc.contains(e)) {
+      return false;
+    }
+    state = cc
+        ? state.copyWith(cc: [...state.cc, e])
+        : state.copyWith(recipients: [...state.recipients, e]);
     return true;
   }
 
   void removeRecipient(String email) => state = state.copyWith(
-      recipients: state.recipients.where((e) => e != email).toList());
+        recipients: state.recipients.where((e) => e != email).toList(),
+        cc: state.cc.where((e) => e != email).toList(),
+      );
 
   /// Saves everything. The root widget switches to the app once
   /// `onboardingDone` flips in the database.
@@ -116,13 +136,15 @@ class OnboardingController extends Notifier<OnboardingDraft> {
     state = state.copyWith(saving: true, clearError: true);
     try {
       final s = state;
-      final whatsapp = s.whatsapp.trim();
+      final whatsapp = cleanPhone(s.whatsapp);
       await ref.read(databaseProvider).saveSetup(
             userName: s.userName.trim(),
             companyName: s.companyName.trim(),
             emailAppPackage: emailAppOptions[s.emailApp].package,
             whatsappNumber: whatsapp.isEmpty ? null : whatsapp,
-            recipientEmails: s.recipients,
+            whatsappName: whatsapp.isEmpty ? null : s.whatsappName,
+            toEmails: s.recipients,
+            ccEmails: s.cc,
             policy: s.policy,
           );
       state = state.copyWith(saving: false);

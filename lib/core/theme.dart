@@ -1,8 +1,37 @@
 import 'package:flutter/material.dart';
 
-ThemeData buildTheme(Brightness brightness) {
+/// Colour themes the user can pick in Settings. Each works in light and dark.
+enum AppPalette {
+  teal('Teal', Color(0xFF0F766E)),
+  ocean('Ocean', Color(0xFF2563EB)),
+  violet('Violet', Color(0xFF7C3AED)),
+  rose('Rose', Color(0xFFE11D48)),
+  amber('Amber', Color(0xFFD97706));
+
+  const AppPalette(this.label, this.seed);
+  final String label;
+  final Color seed;
+
+  static AppPalette fromName(String? name) =>
+      values.firstWhere((p) => p.name == name, orElse: () => teal);
+}
+
+/// `AppSettings.themeMode` values: system | light | dark.
+ThemeMode themeModeFromName(String? name) => switch (name) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
+
+String themeModeLabel(String? name) => switch (name) {
+      'light' => 'Light',
+      'dark' => 'Dark',
+      _ => 'System',
+    };
+
+ThemeData buildTheme(Brightness brightness, [AppPalette palette = AppPalette.teal]) {
   final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF0F766E),
+    seedColor: palette.seed,
     brightness: brightness,
   );
   final base = ThemeData(colorScheme: scheme, useMaterial3: true);

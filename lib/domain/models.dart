@@ -81,5 +81,20 @@ String emailAppLabel(String? package) => emailAppOptions
     .firstWhere((o) => o.package == package, orElse: () => emailAppOptions.last)
     .label;
 
+/// Values of `Recipients.kind`.
+const recipientTo = 'to';
+const recipientCc = 'cc';
+
 final _emailRe = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 bool isValidEmail(String s) => _emailRe.hasMatch(s.trim());
+
+/// Normalises a phone number for WhatsApp: keeps a leading `+` and digits,
+/// and turns an international `00` prefix into `+`.
+String cleanPhone(String raw) {
+  final t = raw.trim();
+  final digits = t.replaceAll(RegExp(r'[^0-9]'), '');
+  if (digits.isEmpty) return '';
+  if (t.startsWith('+')) return '+$digits';
+  if (digits.startsWith('00')) return '+${digits.substring(2)}';
+  return digits;
+}

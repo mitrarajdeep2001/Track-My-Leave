@@ -117,3 +117,15 @@ Save-Canvas $bmp $g (Join-Path $iconDir 'icon_monochrome.png')
 $bmp, $g = New-Canvas 1152
 Draw-Umbrella $g 576 576 1.1 $white $white $sunColor
 Save-Canvas $bmp $g (Join-Path $splashDir 'splash.png')
+
+# 6. Splash branding (app name at the bottom). Android 12+ requires 800x320.
+$bmp = New-Object System.Drawing.Bitmap 800, 320, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$g = [System.Drawing.Graphics]::FromImage($bmp)
+$g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
+$g.Clear([System.Drawing.Color]::Transparent)
+$font = New-Object System.Drawing.Font 'Segoe UI Semibold', 84, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
+$fmt = New-Object System.Drawing.StringFormat
+$fmt.Alignment = [System.Drawing.StringAlignment]::Center
+$fmt.LineAlignment = [System.Drawing.StringAlignment]::Center
+$g.DrawString('TrackMyLeave', $font, (New-Object System.Drawing.SolidBrush $white), (New-Object System.Drawing.RectangleF 0, 0, 800, 320), $fmt)
+Save-Canvas $bmp $g (Join-Path $splashDir 'branding.png')

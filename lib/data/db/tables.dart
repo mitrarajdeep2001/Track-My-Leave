@@ -8,9 +8,18 @@ class AppSettings extends Table {
   TextColumn get companyName => text().withLength(min: 0, max: 120).withDefault(const Constant(''))();
   TextColumn get emailAppPackage => text().nullable()(); // e.g. com.google.android.gm
   TextColumn get whatsappNumber => text().nullable()();
+  TextColumn get whatsappName => text().nullable()(); // contact name, if picked from contacts
   TextColumn get llmProvider => text().nullable()(); // openai | claude | gemini
   TextColumn get llmModel => text().nullable()();
   BoolColumn get onboardingDone => boolean().withDefault(const Constant(false))();
+  TextColumn get themeColor => text().withDefault(const Constant('teal'))(); // AppPalette.name
+  TextColumn get themeMode => text().withDefault(const Constant('system'))(); // system | light | dark
+  // Email templates. Null means "use the built-in default".
+  TextColumn get leaveSubjectTpl => text().nullable()();
+  TextColumn get leaveBodyTpl => text().nullable()();
+  TextColumn get wfhSubjectTpl => text().nullable()();
+  TextColumn get wfhBodyTpl => text().nullable()();
+  DateTimeColumn get lastBackupAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -1,6 +1,6 @@
 {
-    "name": "holiday_tracker",
-    "short_name": "holiday_tracker",
+    "name": "TrackMyLeave",
+    "short_name": "TrackMyLeave",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

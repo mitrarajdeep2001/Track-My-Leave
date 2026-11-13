@@ -1,13 +1,23 @@
 # Source art is drawn by tool/generate_icon_assets.ps1.
 # Regenerate with: dart run flutter_native_splash:create
+#
+# AFTER REGENERATING, re-add this line to the LaunchTheme style in
+# android/app/src/main/res/values-v31/styles.xml and values-night-v31/styles.xml:
+#   <item name="android:windowSplashScreenBehavior" tools:targetApi="33">icon_preferred</item>
+# (plus xmlns:tools="http://schemas.android.com/tools" on <resources>).
+# Without it, Android 13+ may show a plain-colour splash with no icon when the
+# app is not opened from its launcher icon, e.g. when reopened from Recents.
 flutter_native_splash:
   color: "#0F766E"
   image: assets/splash/splash.png
+  branding: assets/splash/branding.png
+  branding_mode: bottom
 
   # Android 12+ always shows the app icon in a circle on a solid colour.
   android_12:
     color: "#0F766E"
     image: assets/splash/splash.png
+    branding: assets/splash/branding.png
 
   android: true
   ios: false

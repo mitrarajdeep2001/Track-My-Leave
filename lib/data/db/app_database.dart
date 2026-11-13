@@ -27,7 +27,7 @@ class AppDatabase extends _$AppDatabase {
             ));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -37,6 +37,18 @@ class AppDatabase extends _$AppDatabase {
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) await m.addColumn(appSettings, appSettings.userName);
+          if (from < 3) {
+            await m.addColumn(appSettings, appSettings.whatsappName);
+            await m.addColumn(appSettings, appSettings.themeColor);
+            await m.addColumn(appSettings, appSettings.themeMode);
+          }
+          if (from < 4) {
+            await m.addColumn(appSettings, appSettings.leaveSubjectTpl);
+            await m.addColumn(appSettings, appSettings.leaveBodyTpl);
+            await m.addColumn(appSettings, appSettings.wfhSubjectTpl);
+            await m.addColumn(appSettings, appSettings.wfhBodyTpl);
+            await m.addColumn(appSettings, appSettings.lastBackupAt);
+          }
         },
       );
 
@@ -65,10 +77,15 @@ class AppDatabase extends _$AppDatabase {
 
   // ---- Recipients --------------------------------------------------------
 
-  Future<void> addRecipient(String email) => into(recipients).insert(
-        RecipientsCompanion.insert(email: email.trim().toLowerCase()),
+  Future<void> addRecipient(String email, {String kind = recipientTo}) =>
+      into(recipients).insert(
+        RecipientsCompanion.insert(email: email.trim().toLowerCase(), kind: Value(kind)),
         mode: InsertMode.insertOrIgnore,
       );
+
+  Future<void> setRecipientKind(int id, String kind) =>
+      (update(recipients)..where((t) => t.id.equals(id)))
+          .write(RecipientsCompanion(kind: Value(kind)));
 
   Future<void> removeRecipient(int id) =>
       (delete(recipients)..where((t) => t.id.equals(id))).go();
@@ -157,7 +174,9 @@ class AppDatabase extends _$AppDatabase {
     required String companyName,
     String? emailAppPackage,
     String? whatsappNumber,
-    required List<String> recipientEmails,
+    String? whatsappName,
+    required List<String> toEmails,
+    List<String> ccEmails = const [],
     required PolicyDraft policy,
   }) {
     return transaction(() async {
@@ -165,7 +184,11 @@ class AppDatabase extends _$AppDatabase {
       await batch((b) {
         b.insertAll(
           recipients,
-          recipientEmails.map((e) => RecipientsCompanion.insert(email: e)),
+          [
+            for (final e in toEmails) RecipientsCompanion.insert(email: e),
+            for (final e in ccEmails)
+              RecipientsCompanion.insert(email: e, kind: const Value(recipientCc)),
+          ],
           mode: InsertMode.insertOrIgnore,
         );
       });
@@ -175,6 +198,7 @@ class AppDatabase extends _$AppDatabase {
         companyName: Value(companyName),
         emailAppPackage: Value(emailAppPackage),
         whatsappNumber: Value(whatsappNumber),
+        whatsappName: Value(whatsappName),
         onboardingDone: const Value(true),
       ));
     });

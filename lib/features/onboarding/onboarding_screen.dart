@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/whatsapp_field.dart';
 import '../../core/widgets.dart';
 import '../../domain/models.dart';
 import '../ai/import_flow_screen.dart';
 import '../policy/policy_editor.dart';
+import '../settings/restore_flow.dart';
 import 'onboarding_controller.dart';
 
 const _stepCount = 5; // everything after the welcome screen
@@ -120,9 +122,27 @@ class _StepHeader extends StatelessWidget {
   }
 }
 
-class _WelcomeStep extends StatelessWidget {
+class _WelcomeStep extends ConsumerStatefulWidget {
   const _WelcomeStep({required this.onStart});
   final VoidCallback onStart;
+
+  @override
+  ConsumerState<_WelcomeStep> createState() => _WelcomeStepState();
+}
+
+class _WelcomeStepState extends ConsumerState<_WelcomeStep> {
+  bool _restoring = false;
+
+  // On success the app switches to the dashboard by itself, because the
+  // restored settings mark onboarding as done.
+  Future<void> _restore() => pickAndRestoreBackup(
+        context,
+        ref,
+        firstRun: true,
+        onBusy: (b) {
+          if (mounted) setState(() => _restoring = b);
+        },
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +173,7 @@ class _WelcomeStep extends StatelessWidget {
                   child: Icon(Icons.beach_access, size: 48, color: cs.onPrimary),
                 ),
                 const SizedBox(height: 28),
-                Text('Holiday\nTracker',
+                Text('TrackMyLeave',
                     style: t.displaySmall?.copyWith(
                         color: cs.onPrimary, fontWeight: FontWeight.w800, height: 1.05)),
                 const SizedBox(height: 14),
@@ -165,7 +185,7 @@ class _WelcomeStep extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: onStart,
+                    onPressed: _restoring ? null : widget.onStart,
                     style: FilledButton.styleFrom(
                       backgroundColor: cs.onPrimary,
                       foregroundColor: cs.primary,
@@ -173,9 +193,28 @@ class _WelcomeStep extends StatelessWidget {
                     child: const Text('Get started'),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _restoring ? null : _restore,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: cs.onPrimary,
+                      side: BorderSide(color: cs.onPrimary.withValues(alpha: 0.7), width: 1.5),
+                    ),
+                    icon: _restoring
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
+                          )
+                        : const Icon(Icons.settings_backup_restore),
+                    label: Text(_restoring ? 'Restoring…' : 'Restore from backup'),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Center(
-                  child: Text('Setup takes about a minute',
+                  child: Text('New here? Setup takes about a minute',
                       style: TextStyle(color: cs.onPrimary.withValues(alpha: 0.8))),
                 ),
               ],
@@ -281,6 +320,7 @@ class _RecipientsStep extends ConsumerStatefulWidget {
 class _RecipientsStepState extends ConsumerState<_RecipientsStep> {
   final _email = TextEditingController();
   String? _err;
+  bool _asCc = false;
 
   @override
   void dispose() {
@@ -290,7 +330,8 @@ class _RecipientsStepState extends ConsumerState<_RecipientsStep> {
 
   void _add() {
     if (_email.text.trim().isEmpty) return;
-    final ok = ref.read(onboardingProvider.notifier).addRecipient(_email.text);
+    final ok =
+        ref.read(onboardingProvider.notifier).addRecipient(_email.text, cc: _asCc);
     setState(() => _err = ok ? null : 'Enter a valid email that is not already added');
     if (ok) _email.clear();
   }
@@ -307,7 +348,17 @@ class _RecipientsStepState extends ConsumerState<_RecipientsStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const _StepHeader('Who gets your requests?',
-              'Add your supervisor or team lead. You can add more later.'),
+              'Add your supervisor or team lead in To. Anyone who should be kept informed, such as HR, goes in Cc.'),
+          SegmentedButton<bool>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(value: false, label: Text('Add to To')),
+              ButtonSegment(value: true, label: Text('Add to Cc')),
+            ],
+            selected: {_asCc},
+            onSelectionChanged: (v) => setState(() => _asCc = v.first),
+          ),
+          const SizedBox(height: 12),
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
@@ -324,34 +375,34 @@ class _RecipientsStepState extends ConsumerState<_RecipientsStep> {
             ),
             onSubmitted: (_) => _add(),
           ),
-          if (d.recipients.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final r in d.recipients)
-                  InputChip(
-                    avatar: CircleAvatar(
-                      backgroundColor: cs.primaryContainer,
-                      child: Text(r[0].toUpperCase(),
-                          style: TextStyle(fontSize: 12, color: cs.onPrimaryContainer)),
+          for (final (label, list) in [('To', d.recipients), ('Cc', d.cc)])
+            if (list.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(label,
+                  style: TextStyle(
+                      color: cs.onSurfaceVariant, fontWeight: FontWeight.w700, fontSize: 13)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final r in list)
+                    InputChip(
+                      avatar: CircleAvatar(
+                        backgroundColor: cs.primaryContainer,
+                        child: Text(r[0].toUpperCase(),
+                            style: TextStyle(fontSize: 12, color: cs.onPrimaryContainer)),
+                      ),
+                      label: Text(r),
+                      onDeleted: () => c.removeRecipient(r),
                     ),
-                    label: Text(r),
-                    onDeleted: () => c.removeRecipient(r),
-                  ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
           const SizedBox(height: 28),
-          TextFormField(
-            initialValue: d.whatsapp,
-            keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'WhatsApp number (optional)',
-              hintText: 'With country code, e.g. 919876543210',
-              prefixIcon: Icon(Icons.chat_outlined),
-            ),
+          WhatsappField(
+            initialNumber: d.whatsapp,
+            initialName: d.whatsappName,
             onChanged: c.setWhatsapp,
           ),
         ],

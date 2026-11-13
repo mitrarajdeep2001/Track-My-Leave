@@ -2,6 +2,9 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/formatters.dart';
+import '../../core/theme.dart';
+import '../../core/whatsapp_field.dart';
 import '../../core/widgets.dart';
 import '../../data/db/app_database.dart';
 import '../../data/providers.dart';
@@ -10,7 +13,10 @@ import '../ai/import_flow_screen.dart';
 import '../ai/llm_settings_screen.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../policy/policy_screen.dart';
+import 'backup_screen.dart';
+import 'email_template_screen.dart';
 import 'recipients_screen.dart';
+import 'theme_sheet.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -67,22 +73,22 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _editWhatsapp(BuildContext context, WidgetRef ref, AppSetting s) async {
-    final v = await showDialog<String>(
+    final r = await showDialog<({String number, String? name})>(
       context: context,
-      builder: (_) => _TextDialog(
-        title: 'WhatsApp number',
-        label: 'Number with country code',
-        hint: '919876543210',
-        initial: s.whatsappNumber ?? '',
-        keyboard: TextInputType.phone,
-        allowEmpty: true,
-      ),
+      builder: (_) => _WhatsappDialog(number: s.whatsappNumber ?? '', name: s.whatsappName),
     );
-    if (v != null) {
-      await _db(ref).updateSettings(
-          AppSettingsCompanion(whatsappNumber: Value(v.trim().isEmpty ? null : v.trim())));
-    }
+    if (r == null) return;
+    final n = cleanPhone(r.number);
+    await _db(ref).updateSettings(AppSettingsCompanion(
+      whatsappNumber: Value(n.isEmpty ? null : n),
+      whatsappName: Value(n.isEmpty ? null : r.name),
+    ));
   }
+
+  void _pickTheme(BuildContext context) => showModalBottomSheet<void>(
+        context: context,
+        builder: (_) => const ThemeSheet(),
+      );
 
   Future<void> _importPdf(BuildContext context) async {
     final p = await Navigator.of(context)
@@ -174,6 +180,15 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          _Group(title: 'Appearance', children: [
+            _Tile(
+              icon: Icons.palette_outlined,
+              title: 'Theme',
+              subtitle:
+                  '${AppPalette.fromName(s.themeColor).label} · ${themeModeLabel(s.themeMode)}',
+              onTap: () => _pickTheme(context),
+            ),
+          ]),
           _Group(title: 'Sending requests', children: [
             _Tile(
               icon: Icons.mail_outline,
@@ -186,14 +201,32 @@ class SettingsScreen extends ConsumerWidget {
               title: 'Recipients',
               subtitle: recipients.isEmpty
                   ? 'None added'
-                  : '${recipients.length} ${recipients.length == 1 ? 'person' : 'people'}',
+                  : () {
+                      final cc = recipients.where((r) => r.kind == recipientCc).length;
+                      final to = recipients.length - cc;
+                      return '$to in To${cc > 0 ? ' · $cc in Cc' : ''}';
+                    }(),
               onTap: () => _push(context, const RecipientsScreen()),
             ),
             _Tile(
               icon: Icons.chat_outlined,
               title: 'WhatsApp number',
-              subtitle: (s.whatsappNumber ?? '').isEmpty ? 'Not set' : s.whatsappNumber!,
+              subtitle: (s.whatsappNumber ?? '').isEmpty
+                  ? 'Not set'
+                  : [
+                      if ((s.whatsappName ?? '').isNotEmpty) s.whatsappName!,
+                      s.whatsappNumber!,
+                    ].join(' · '),
               onTap: () => _editWhatsapp(context, ref, s),
+            ),
+            _Tile(
+              icon: Icons.edit_note,
+              title: 'Email template',
+              subtitle: (s.leaveSubjectTpl ?? s.leaveBodyTpl ?? s.wfhSubjectTpl ?? s.wfhBodyTpl) ==
+                      null
+                  ? 'Default wording'
+                  : 'Customised',
+              onTap: () => _push(context, const EmailTemplateScreen()),
             ),
           ]),
           _Group(title: 'Leave policy', children: [
@@ -223,14 +256,16 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Get nudged before holidays and to confirm requests',
               enabled: false,
             ),
-            const _Tile(
-              icon: Icons.cloud_upload_outlined,
-              title: 'Backup',
-              subtitle: 'Google Drive or OneDrive',
-              enabled: false,
-            ),
           ]),
           _Group(title: 'Data', children: [
+            _Tile(
+              icon: Icons.cloud_upload_outlined,
+              title: 'Backup & restore',
+              subtitle: s.lastBackupAt == null
+                  ? 'Not backed up yet'
+                  : 'Last backup ${fmtDayYear.format(s.lastBackupAt!)}',
+              onTap: () => _push(context, const BackupScreen()),
+            ),
             _Tile(
               icon: Icons.delete_forever_outlined,
               title: 'Erase all data',
@@ -378,55 +413,51 @@ class _ProfileDialogState extends State<_ProfileDialog> {
       );
 }
 
-class _TextDialog extends StatefulWidget {
-  const _TextDialog({
-    required this.title,
-    required this.label,
-    this.hint,
-    this.initial = '',
-    this.keyboard,
-    this.allowEmpty = false,
-  });
+class _WhatsappDialog extends StatefulWidget {
+  const _WhatsappDialog({required this.number, this.name});
 
-  final String title;
-  final String label;
-  final String? hint;
-  final String initial;
-  final TextInputType? keyboard;
-  final bool allowEmpty;
+  final String number;
+  final String? name;
 
   @override
-  State<_TextDialog> createState() => _TextDialogState();
+  State<_WhatsappDialog> createState() => _WhatsappDialogState();
 }
 
-class _TextDialogState extends State<_TextDialog> {
-  late final _c = TextEditingController(text: widget.initial);
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (_c.text.trim().isEmpty && !widget.allowEmpty) return;
-    Navigator.pop(context, _c.text.trim());
-  }
+class _WhatsappDialogState extends State<_WhatsappDialog> {
+  late String _number = widget.number;
+  late String? _name = widget.name;
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: Text(widget.title),
-        content: TextField(
-          controller: _c,
-          autofocus: true,
-          keyboardType: widget.keyboard,
-          decoration: InputDecoration(labelText: widget.label, hintText: widget.hint),
-          onSubmitted: (_) => _submit(),
+        title: const Text('WhatsApp contact'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Requests can also be sent to this person on WhatsApp. Type the number or pick it from your contacts.',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            WhatsappField(
+              initialNumber: _number,
+              initialName: _name,
+              onChanged: (n, name) {
+                _number = n;
+                _name = name;
+              },
+            ),
+          ],
         ),
         actions: [
+          if (widget.number.isNotEmpty)
+            TextButton(
+              onPressed: () => Navigator.pop(context, (number: '', name: null)),
+              child: Text('Remove', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            ),
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           FilledButton(
-            onPressed: _submit,
+            onPressed: () => Navigator.pop(context, (number: _number, name: _name)),
             style: FilledButton.styleFrom(minimumSize: const Size(88, 44)),
             child: const Text('Save'),
           ),

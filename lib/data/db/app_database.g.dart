@@ -69,6 +69,17 @@ class $AppSettingsTable extends AppSettings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _whatsappNameMeta = const VerificationMeta(
+    'whatsappName',
+  );
+  @override
+  late final GeneratedColumn<String> whatsappName = GeneratedColumn<String>(
+    'whatsapp_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _llmProviderMeta = const VerificationMeta(
     'llmProvider',
   );
@@ -106,6 +117,85 @@ class $AppSettingsTable extends AppSettings
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _themeColorMeta = const VerificationMeta(
+    'themeColor',
+  );
+  @override
+  late final GeneratedColumn<String> themeColor = GeneratedColumn<String>(
+    'theme_color',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('teal'),
+  );
+  static const VerificationMeta _themeModeMeta = const VerificationMeta(
+    'themeMode',
+  );
+  @override
+  late final GeneratedColumn<String> themeMode = GeneratedColumn<String>(
+    'theme_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('system'),
+  );
+  static const VerificationMeta _leaveSubjectTplMeta = const VerificationMeta(
+    'leaveSubjectTpl',
+  );
+  @override
+  late final GeneratedColumn<String> leaveSubjectTpl = GeneratedColumn<String>(
+    'leave_subject_tpl',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _leaveBodyTplMeta = const VerificationMeta(
+    'leaveBodyTpl',
+  );
+  @override
+  late final GeneratedColumn<String> leaveBodyTpl = GeneratedColumn<String>(
+    'leave_body_tpl',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _wfhSubjectTplMeta = const VerificationMeta(
+    'wfhSubjectTpl',
+  );
+  @override
+  late final GeneratedColumn<String> wfhSubjectTpl = GeneratedColumn<String>(
+    'wfh_subject_tpl',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _wfhBodyTplMeta = const VerificationMeta(
+    'wfhBodyTpl',
+  );
+  @override
+  late final GeneratedColumn<String> wfhBodyTpl = GeneratedColumn<String>(
+    'wfh_body_tpl',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastBackupAtMeta = const VerificationMeta(
+    'lastBackupAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastBackupAt = GeneratedColumn<DateTime>(
+    'last_backup_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -113,9 +203,17 @@ class $AppSettingsTable extends AppSettings
     companyName,
     emailAppPackage,
     whatsappNumber,
+    whatsappName,
     llmProvider,
     llmModel,
     onboardingDone,
+    themeColor,
+    themeMode,
+    leaveSubjectTpl,
+    leaveBodyTpl,
+    wfhSubjectTpl,
+    wfhBodyTpl,
+    lastBackupAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -165,6 +263,15 @@ class $AppSettingsTable extends AppSettings
         ),
       );
     }
+    if (data.containsKey('whatsapp_name')) {
+      context.handle(
+        _whatsappNameMeta,
+        whatsappName.isAcceptableOrUnknown(
+          data['whatsapp_name']!,
+          _whatsappNameMeta,
+        ),
+      );
+    }
     if (data.containsKey('llm_provider')) {
       context.handle(
         _llmProviderMeta,
@@ -186,6 +293,63 @@ class $AppSettingsTable extends AppSettings
         onboardingDone.isAcceptableOrUnknown(
           data['onboarding_done']!,
           _onboardingDoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('theme_color')) {
+      context.handle(
+        _themeColorMeta,
+        themeColor.isAcceptableOrUnknown(data['theme_color']!, _themeColorMeta),
+      );
+    }
+    if (data.containsKey('theme_mode')) {
+      context.handle(
+        _themeModeMeta,
+        themeMode.isAcceptableOrUnknown(data['theme_mode']!, _themeModeMeta),
+      );
+    }
+    if (data.containsKey('leave_subject_tpl')) {
+      context.handle(
+        _leaveSubjectTplMeta,
+        leaveSubjectTpl.isAcceptableOrUnknown(
+          data['leave_subject_tpl']!,
+          _leaveSubjectTplMeta,
+        ),
+      );
+    }
+    if (data.containsKey('leave_body_tpl')) {
+      context.handle(
+        _leaveBodyTplMeta,
+        leaveBodyTpl.isAcceptableOrUnknown(
+          data['leave_body_tpl']!,
+          _leaveBodyTplMeta,
+        ),
+      );
+    }
+    if (data.containsKey('wfh_subject_tpl')) {
+      context.handle(
+        _wfhSubjectTplMeta,
+        wfhSubjectTpl.isAcceptableOrUnknown(
+          data['wfh_subject_tpl']!,
+          _wfhSubjectTplMeta,
+        ),
+      );
+    }
+    if (data.containsKey('wfh_body_tpl')) {
+      context.handle(
+        _wfhBodyTplMeta,
+        wfhBodyTpl.isAcceptableOrUnknown(
+          data['wfh_body_tpl']!,
+          _wfhBodyTplMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_backup_at')) {
+      context.handle(
+        _lastBackupAtMeta,
+        lastBackupAt.isAcceptableOrUnknown(
+          data['last_backup_at']!,
+          _lastBackupAtMeta,
         ),
       );
     }
@@ -218,6 +382,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.string,
         data['${effectivePrefix}whatsapp_number'],
       ),
+      whatsappName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}whatsapp_name'],
+      ),
       llmProvider: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}llm_provider'],
@@ -230,6 +398,34 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.bool,
         data['${effectivePrefix}onboarding_done'],
       )!,
+      themeColor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}theme_color'],
+      )!,
+      themeMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}theme_mode'],
+      )!,
+      leaveSubjectTpl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}leave_subject_tpl'],
+      ),
+      leaveBodyTpl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}leave_body_tpl'],
+      ),
+      wfhSubjectTpl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wfh_subject_tpl'],
+      ),
+      wfhBodyTpl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wfh_body_tpl'],
+      ),
+      lastBackupAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_backup_at'],
+      ),
     );
   }
 
@@ -245,18 +441,34 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
   final String companyName;
   final String? emailAppPackage;
   final String? whatsappNumber;
+  final String? whatsappName;
   final String? llmProvider;
   final String? llmModel;
   final bool onboardingDone;
+  final String themeColor;
+  final String themeMode;
+  final String? leaveSubjectTpl;
+  final String? leaveBodyTpl;
+  final String? wfhSubjectTpl;
+  final String? wfhBodyTpl;
+  final DateTime? lastBackupAt;
   const AppSetting({
     required this.id,
     required this.userName,
     required this.companyName,
     this.emailAppPackage,
     this.whatsappNumber,
+    this.whatsappName,
     this.llmProvider,
     this.llmModel,
     required this.onboardingDone,
+    required this.themeColor,
+    required this.themeMode,
+    this.leaveSubjectTpl,
+    this.leaveBodyTpl,
+    this.wfhSubjectTpl,
+    this.wfhBodyTpl,
+    this.lastBackupAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -270,6 +482,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     if (!nullToAbsent || whatsappNumber != null) {
       map['whatsapp_number'] = Variable<String>(whatsappNumber);
     }
+    if (!nullToAbsent || whatsappName != null) {
+      map['whatsapp_name'] = Variable<String>(whatsappName);
+    }
     if (!nullToAbsent || llmProvider != null) {
       map['llm_provider'] = Variable<String>(llmProvider);
     }
@@ -277,6 +492,23 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       map['llm_model'] = Variable<String>(llmModel);
     }
     map['onboarding_done'] = Variable<bool>(onboardingDone);
+    map['theme_color'] = Variable<String>(themeColor);
+    map['theme_mode'] = Variable<String>(themeMode);
+    if (!nullToAbsent || leaveSubjectTpl != null) {
+      map['leave_subject_tpl'] = Variable<String>(leaveSubjectTpl);
+    }
+    if (!nullToAbsent || leaveBodyTpl != null) {
+      map['leave_body_tpl'] = Variable<String>(leaveBodyTpl);
+    }
+    if (!nullToAbsent || wfhSubjectTpl != null) {
+      map['wfh_subject_tpl'] = Variable<String>(wfhSubjectTpl);
+    }
+    if (!nullToAbsent || wfhBodyTpl != null) {
+      map['wfh_body_tpl'] = Variable<String>(wfhBodyTpl);
+    }
+    if (!nullToAbsent || lastBackupAt != null) {
+      map['last_backup_at'] = Variable<DateTime>(lastBackupAt);
+    }
     return map;
   }
 
@@ -291,6 +523,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       whatsappNumber: whatsappNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(whatsappNumber),
+      whatsappName: whatsappName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(whatsappName),
       llmProvider: llmProvider == null && nullToAbsent
           ? const Value.absent()
           : Value(llmProvider),
@@ -298,6 +533,23 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           ? const Value.absent()
           : Value(llmModel),
       onboardingDone: Value(onboardingDone),
+      themeColor: Value(themeColor),
+      themeMode: Value(themeMode),
+      leaveSubjectTpl: leaveSubjectTpl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leaveSubjectTpl),
+      leaveBodyTpl: leaveBodyTpl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leaveBodyTpl),
+      wfhSubjectTpl: wfhSubjectTpl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wfhSubjectTpl),
+      wfhBodyTpl: wfhBodyTpl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wfhBodyTpl),
+      lastBackupAt: lastBackupAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastBackupAt),
     );
   }
 
@@ -312,9 +564,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       companyName: serializer.fromJson<String>(json['companyName']),
       emailAppPackage: serializer.fromJson<String?>(json['emailAppPackage']),
       whatsappNumber: serializer.fromJson<String?>(json['whatsappNumber']),
+      whatsappName: serializer.fromJson<String?>(json['whatsappName']),
       llmProvider: serializer.fromJson<String?>(json['llmProvider']),
       llmModel: serializer.fromJson<String?>(json['llmModel']),
       onboardingDone: serializer.fromJson<bool>(json['onboardingDone']),
+      themeColor: serializer.fromJson<String>(json['themeColor']),
+      themeMode: serializer.fromJson<String>(json['themeMode']),
+      leaveSubjectTpl: serializer.fromJson<String?>(json['leaveSubjectTpl']),
+      leaveBodyTpl: serializer.fromJson<String?>(json['leaveBodyTpl']),
+      wfhSubjectTpl: serializer.fromJson<String?>(json['wfhSubjectTpl']),
+      wfhBodyTpl: serializer.fromJson<String?>(json['wfhBodyTpl']),
+      lastBackupAt: serializer.fromJson<DateTime?>(json['lastBackupAt']),
     );
   }
   @override
@@ -326,9 +586,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       'companyName': serializer.toJson<String>(companyName),
       'emailAppPackage': serializer.toJson<String?>(emailAppPackage),
       'whatsappNumber': serializer.toJson<String?>(whatsappNumber),
+      'whatsappName': serializer.toJson<String?>(whatsappName),
       'llmProvider': serializer.toJson<String?>(llmProvider),
       'llmModel': serializer.toJson<String?>(llmModel),
       'onboardingDone': serializer.toJson<bool>(onboardingDone),
+      'themeColor': serializer.toJson<String>(themeColor),
+      'themeMode': serializer.toJson<String>(themeMode),
+      'leaveSubjectTpl': serializer.toJson<String?>(leaveSubjectTpl),
+      'leaveBodyTpl': serializer.toJson<String?>(leaveBodyTpl),
+      'wfhSubjectTpl': serializer.toJson<String?>(wfhSubjectTpl),
+      'wfhBodyTpl': serializer.toJson<String?>(wfhBodyTpl),
+      'lastBackupAt': serializer.toJson<DateTime?>(lastBackupAt),
     };
   }
 
@@ -338,9 +606,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     String? companyName,
     Value<String?> emailAppPackage = const Value.absent(),
     Value<String?> whatsappNumber = const Value.absent(),
+    Value<String?> whatsappName = const Value.absent(),
     Value<String?> llmProvider = const Value.absent(),
     Value<String?> llmModel = const Value.absent(),
     bool? onboardingDone,
+    String? themeColor,
+    String? themeMode,
+    Value<String?> leaveSubjectTpl = const Value.absent(),
+    Value<String?> leaveBodyTpl = const Value.absent(),
+    Value<String?> wfhSubjectTpl = const Value.absent(),
+    Value<String?> wfhBodyTpl = const Value.absent(),
+    Value<DateTime?> lastBackupAt = const Value.absent(),
   }) => AppSetting(
     id: id ?? this.id,
     userName: userName ?? this.userName,
@@ -351,9 +627,21 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     whatsappNumber: whatsappNumber.present
         ? whatsappNumber.value
         : this.whatsappNumber,
+    whatsappName: whatsappName.present ? whatsappName.value : this.whatsappName,
     llmProvider: llmProvider.present ? llmProvider.value : this.llmProvider,
     llmModel: llmModel.present ? llmModel.value : this.llmModel,
     onboardingDone: onboardingDone ?? this.onboardingDone,
+    themeColor: themeColor ?? this.themeColor,
+    themeMode: themeMode ?? this.themeMode,
+    leaveSubjectTpl: leaveSubjectTpl.present
+        ? leaveSubjectTpl.value
+        : this.leaveSubjectTpl,
+    leaveBodyTpl: leaveBodyTpl.present ? leaveBodyTpl.value : this.leaveBodyTpl,
+    wfhSubjectTpl: wfhSubjectTpl.present
+        ? wfhSubjectTpl.value
+        : this.wfhSubjectTpl,
+    wfhBodyTpl: wfhBodyTpl.present ? wfhBodyTpl.value : this.wfhBodyTpl,
+    lastBackupAt: lastBackupAt.present ? lastBackupAt.value : this.lastBackupAt,
   );
   AppSetting copyWithCompanion(AppSettingsCompanion data) {
     return AppSetting(
@@ -368,6 +656,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       whatsappNumber: data.whatsappNumber.present
           ? data.whatsappNumber.value
           : this.whatsappNumber,
+      whatsappName: data.whatsappName.present
+          ? data.whatsappName.value
+          : this.whatsappName,
       llmProvider: data.llmProvider.present
           ? data.llmProvider.value
           : this.llmProvider,
@@ -375,6 +666,25 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       onboardingDone: data.onboardingDone.present
           ? data.onboardingDone.value
           : this.onboardingDone,
+      themeColor: data.themeColor.present
+          ? data.themeColor.value
+          : this.themeColor,
+      themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
+      leaveSubjectTpl: data.leaveSubjectTpl.present
+          ? data.leaveSubjectTpl.value
+          : this.leaveSubjectTpl,
+      leaveBodyTpl: data.leaveBodyTpl.present
+          ? data.leaveBodyTpl.value
+          : this.leaveBodyTpl,
+      wfhSubjectTpl: data.wfhSubjectTpl.present
+          ? data.wfhSubjectTpl.value
+          : this.wfhSubjectTpl,
+      wfhBodyTpl: data.wfhBodyTpl.present
+          ? data.wfhBodyTpl.value
+          : this.wfhBodyTpl,
+      lastBackupAt: data.lastBackupAt.present
+          ? data.lastBackupAt.value
+          : this.lastBackupAt,
     );
   }
 
@@ -386,9 +696,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           ..write('companyName: $companyName, ')
           ..write('emailAppPackage: $emailAppPackage, ')
           ..write('whatsappNumber: $whatsappNumber, ')
+          ..write('whatsappName: $whatsappName, ')
           ..write('llmProvider: $llmProvider, ')
           ..write('llmModel: $llmModel, ')
-          ..write('onboardingDone: $onboardingDone')
+          ..write('onboardingDone: $onboardingDone, ')
+          ..write('themeColor: $themeColor, ')
+          ..write('themeMode: $themeMode, ')
+          ..write('leaveSubjectTpl: $leaveSubjectTpl, ')
+          ..write('leaveBodyTpl: $leaveBodyTpl, ')
+          ..write('wfhSubjectTpl: $wfhSubjectTpl, ')
+          ..write('wfhBodyTpl: $wfhBodyTpl, ')
+          ..write('lastBackupAt: $lastBackupAt')
           ..write(')'))
         .toString();
   }
@@ -400,9 +718,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     companyName,
     emailAppPackage,
     whatsappNumber,
+    whatsappName,
     llmProvider,
     llmModel,
     onboardingDone,
+    themeColor,
+    themeMode,
+    leaveSubjectTpl,
+    leaveBodyTpl,
+    wfhSubjectTpl,
+    wfhBodyTpl,
+    lastBackupAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -413,9 +739,17 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           other.companyName == this.companyName &&
           other.emailAppPackage == this.emailAppPackage &&
           other.whatsappNumber == this.whatsappNumber &&
+          other.whatsappName == this.whatsappName &&
           other.llmProvider == this.llmProvider &&
           other.llmModel == this.llmModel &&
-          other.onboardingDone == this.onboardingDone);
+          other.onboardingDone == this.onboardingDone &&
+          other.themeColor == this.themeColor &&
+          other.themeMode == this.themeMode &&
+          other.leaveSubjectTpl == this.leaveSubjectTpl &&
+          other.leaveBodyTpl == this.leaveBodyTpl &&
+          other.wfhSubjectTpl == this.wfhSubjectTpl &&
+          other.wfhBodyTpl == this.wfhBodyTpl &&
+          other.lastBackupAt == this.lastBackupAt);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
@@ -424,18 +758,34 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<String> companyName;
   final Value<String?> emailAppPackage;
   final Value<String?> whatsappNumber;
+  final Value<String?> whatsappName;
   final Value<String?> llmProvider;
   final Value<String?> llmModel;
   final Value<bool> onboardingDone;
+  final Value<String> themeColor;
+  final Value<String> themeMode;
+  final Value<String?> leaveSubjectTpl;
+  final Value<String?> leaveBodyTpl;
+  final Value<String?> wfhSubjectTpl;
+  final Value<String?> wfhBodyTpl;
+  final Value<DateTime?> lastBackupAt;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.userName = const Value.absent(),
     this.companyName = const Value.absent(),
     this.emailAppPackage = const Value.absent(),
     this.whatsappNumber = const Value.absent(),
+    this.whatsappName = const Value.absent(),
     this.llmProvider = const Value.absent(),
     this.llmModel = const Value.absent(),
     this.onboardingDone = const Value.absent(),
+    this.themeColor = const Value.absent(),
+    this.themeMode = const Value.absent(),
+    this.leaveSubjectTpl = const Value.absent(),
+    this.leaveBodyTpl = const Value.absent(),
+    this.wfhSubjectTpl = const Value.absent(),
+    this.wfhBodyTpl = const Value.absent(),
+    this.lastBackupAt = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -443,9 +793,17 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     this.companyName = const Value.absent(),
     this.emailAppPackage = const Value.absent(),
     this.whatsappNumber = const Value.absent(),
+    this.whatsappName = const Value.absent(),
     this.llmProvider = const Value.absent(),
     this.llmModel = const Value.absent(),
     this.onboardingDone = const Value.absent(),
+    this.themeColor = const Value.absent(),
+    this.themeMode = const Value.absent(),
+    this.leaveSubjectTpl = const Value.absent(),
+    this.leaveBodyTpl = const Value.absent(),
+    this.wfhSubjectTpl = const Value.absent(),
+    this.wfhBodyTpl = const Value.absent(),
+    this.lastBackupAt = const Value.absent(),
   });
   static Insertable<AppSetting> custom({
     Expression<int>? id,
@@ -453,9 +811,17 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Expression<String>? companyName,
     Expression<String>? emailAppPackage,
     Expression<String>? whatsappNumber,
+    Expression<String>? whatsappName,
     Expression<String>? llmProvider,
     Expression<String>? llmModel,
     Expression<bool>? onboardingDone,
+    Expression<String>? themeColor,
+    Expression<String>? themeMode,
+    Expression<String>? leaveSubjectTpl,
+    Expression<String>? leaveBodyTpl,
+    Expression<String>? wfhSubjectTpl,
+    Expression<String>? wfhBodyTpl,
+    Expression<DateTime>? lastBackupAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -463,9 +829,17 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
       if (companyName != null) 'company_name': companyName,
       if (emailAppPackage != null) 'email_app_package': emailAppPackage,
       if (whatsappNumber != null) 'whatsapp_number': whatsappNumber,
+      if (whatsappName != null) 'whatsapp_name': whatsappName,
       if (llmProvider != null) 'llm_provider': llmProvider,
       if (llmModel != null) 'llm_model': llmModel,
       if (onboardingDone != null) 'onboarding_done': onboardingDone,
+      if (themeColor != null) 'theme_color': themeColor,
+      if (themeMode != null) 'theme_mode': themeMode,
+      if (leaveSubjectTpl != null) 'leave_subject_tpl': leaveSubjectTpl,
+      if (leaveBodyTpl != null) 'leave_body_tpl': leaveBodyTpl,
+      if (wfhSubjectTpl != null) 'wfh_subject_tpl': wfhSubjectTpl,
+      if (wfhBodyTpl != null) 'wfh_body_tpl': wfhBodyTpl,
+      if (lastBackupAt != null) 'last_backup_at': lastBackupAt,
     });
   }
 
@@ -475,9 +849,17 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Value<String>? companyName,
     Value<String?>? emailAppPackage,
     Value<String?>? whatsappNumber,
+    Value<String?>? whatsappName,
     Value<String?>? llmProvider,
     Value<String?>? llmModel,
     Value<bool>? onboardingDone,
+    Value<String>? themeColor,
+    Value<String>? themeMode,
+    Value<String?>? leaveSubjectTpl,
+    Value<String?>? leaveBodyTpl,
+    Value<String?>? wfhSubjectTpl,
+    Value<String?>? wfhBodyTpl,
+    Value<DateTime?>? lastBackupAt,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
@@ -485,9 +867,17 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
       companyName: companyName ?? this.companyName,
       emailAppPackage: emailAppPackage ?? this.emailAppPackage,
       whatsappNumber: whatsappNumber ?? this.whatsappNumber,
+      whatsappName: whatsappName ?? this.whatsappName,
       llmProvider: llmProvider ?? this.llmProvider,
       llmModel: llmModel ?? this.llmModel,
       onboardingDone: onboardingDone ?? this.onboardingDone,
+      themeColor: themeColor ?? this.themeColor,
+      themeMode: themeMode ?? this.themeMode,
+      leaveSubjectTpl: leaveSubjectTpl ?? this.leaveSubjectTpl,
+      leaveBodyTpl: leaveBodyTpl ?? this.leaveBodyTpl,
+      wfhSubjectTpl: wfhSubjectTpl ?? this.wfhSubjectTpl,
+      wfhBodyTpl: wfhBodyTpl ?? this.wfhBodyTpl,
+      lastBackupAt: lastBackupAt ?? this.lastBackupAt,
     );
   }
 
@@ -509,6 +899,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     if (whatsappNumber.present) {
       map['whatsapp_number'] = Variable<String>(whatsappNumber.value);
     }
+    if (whatsappName.present) {
+      map['whatsapp_name'] = Variable<String>(whatsappName.value);
+    }
     if (llmProvider.present) {
       map['llm_provider'] = Variable<String>(llmProvider.value);
     }
@@ -517,6 +910,27 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     }
     if (onboardingDone.present) {
       map['onboarding_done'] = Variable<bool>(onboardingDone.value);
+    }
+    if (themeColor.present) {
+      map['theme_color'] = Variable<String>(themeColor.value);
+    }
+    if (themeMode.present) {
+      map['theme_mode'] = Variable<String>(themeMode.value);
+    }
+    if (leaveSubjectTpl.present) {
+      map['leave_subject_tpl'] = Variable<String>(leaveSubjectTpl.value);
+    }
+    if (leaveBodyTpl.present) {
+      map['leave_body_tpl'] = Variable<String>(leaveBodyTpl.value);
+    }
+    if (wfhSubjectTpl.present) {
+      map['wfh_subject_tpl'] = Variable<String>(wfhSubjectTpl.value);
+    }
+    if (wfhBodyTpl.present) {
+      map['wfh_body_tpl'] = Variable<String>(wfhBodyTpl.value);
+    }
+    if (lastBackupAt.present) {
+      map['last_backup_at'] = Variable<DateTime>(lastBackupAt.value);
     }
     return map;
   }
@@ -529,9 +943,17 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
           ..write('companyName: $companyName, ')
           ..write('emailAppPackage: $emailAppPackage, ')
           ..write('whatsappNumber: $whatsappNumber, ')
+          ..write('whatsappName: $whatsappName, ')
           ..write('llmProvider: $llmProvider, ')
           ..write('llmModel: $llmModel, ')
-          ..write('onboardingDone: $onboardingDone')
+          ..write('onboardingDone: $onboardingDone, ')
+          ..write('themeColor: $themeColor, ')
+          ..write('themeMode: $themeMode, ')
+          ..write('leaveSubjectTpl: $leaveSubjectTpl, ')
+          ..write('leaveBodyTpl: $leaveBodyTpl, ')
+          ..write('wfhSubjectTpl: $wfhSubjectTpl, ')
+          ..write('wfhBodyTpl: $wfhBodyTpl, ')
+          ..write('lastBackupAt: $lastBackupAt')
           ..write(')'))
         .toString();
   }
@@ -2336,9 +2758,17 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<String> companyName,
       Value<String?> emailAppPackage,
       Value<String?> whatsappNumber,
+      Value<String?> whatsappName,
       Value<String?> llmProvider,
       Value<String?> llmModel,
       Value<bool> onboardingDone,
+      Value<String> themeColor,
+      Value<String> themeMode,
+      Value<String?> leaveSubjectTpl,
+      Value<String?> leaveBodyTpl,
+      Value<String?> wfhSubjectTpl,
+      Value<String?> wfhBodyTpl,
+      Value<DateTime?> lastBackupAt,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -2347,9 +2777,17 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<String> companyName,
       Value<String?> emailAppPackage,
       Value<String?> whatsappNumber,
+      Value<String?> whatsappName,
       Value<String?> llmProvider,
       Value<String?> llmModel,
       Value<bool> onboardingDone,
+      Value<String> themeColor,
+      Value<String> themeMode,
+      Value<String?> leaveSubjectTpl,
+      Value<String?> leaveBodyTpl,
+      Value<String?> wfhSubjectTpl,
+      Value<String?> wfhBodyTpl,
+      Value<DateTime?> lastBackupAt,
     });
 
 class $$AppSettingsTableFilterComposer
@@ -2386,6 +2824,11 @@ class $$AppSettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get whatsappName => $composableBuilder(
+    column: $table.whatsappName,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get llmProvider => $composableBuilder(
     column: $table.llmProvider,
     builder: (column) => ColumnFilters(column),
@@ -2398,6 +2841,41 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<bool> get onboardingDone => $composableBuilder(
     column: $table.onboardingDone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get themeColor => $composableBuilder(
+    column: $table.themeColor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get leaveSubjectTpl => $composableBuilder(
+    column: $table.leaveSubjectTpl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get leaveBodyTpl => $composableBuilder(
+    column: $table.leaveBodyTpl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get wfhSubjectTpl => $composableBuilder(
+    column: $table.wfhSubjectTpl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get wfhBodyTpl => $composableBuilder(
+    column: $table.wfhBodyTpl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastBackupAt => $composableBuilder(
+    column: $table.lastBackupAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2436,6 +2914,11 @@ class $$AppSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get whatsappName => $composableBuilder(
+    column: $table.whatsappName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get llmProvider => $composableBuilder(
     column: $table.llmProvider,
     builder: (column) => ColumnOrderings(column),
@@ -2448,6 +2931,41 @@ class $$AppSettingsTableOrderingComposer
 
   ColumnOrderings<bool> get onboardingDone => $composableBuilder(
     column: $table.onboardingDone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get themeColor => $composableBuilder(
+    column: $table.themeColor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get leaveSubjectTpl => $composableBuilder(
+    column: $table.leaveSubjectTpl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get leaveBodyTpl => $composableBuilder(
+    column: $table.leaveBodyTpl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get wfhSubjectTpl => $composableBuilder(
+    column: $table.wfhSubjectTpl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get wfhBodyTpl => $composableBuilder(
+    column: $table.wfhBodyTpl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastBackupAt => $composableBuilder(
+    column: $table.lastBackupAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -2482,6 +3000,11 @@ class $$AppSettingsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get whatsappName => $composableBuilder(
+    column: $table.whatsappName,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get llmProvider => $composableBuilder(
     column: $table.llmProvider,
     builder: (column) => column,
@@ -2492,6 +3015,39 @@ class $$AppSettingsTableAnnotationComposer
 
   GeneratedColumn<bool> get onboardingDone => $composableBuilder(
     column: $table.onboardingDone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get themeColor => $composableBuilder(
+    column: $table.themeColor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get themeMode =>
+      $composableBuilder(column: $table.themeMode, builder: (column) => column);
+
+  GeneratedColumn<String> get leaveSubjectTpl => $composableBuilder(
+    column: $table.leaveSubjectTpl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get leaveBodyTpl => $composableBuilder(
+    column: $table.leaveBodyTpl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get wfhSubjectTpl => $composableBuilder(
+    column: $table.wfhSubjectTpl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get wfhBodyTpl => $composableBuilder(
+    column: $table.wfhBodyTpl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastBackupAt => $composableBuilder(
+    column: $table.lastBackupAt,
     builder: (column) => column,
   );
 }
@@ -2532,18 +3088,34 @@ class $$AppSettingsTableTableManager
                 Value<String> companyName = const Value.absent(),
                 Value<String?> emailAppPackage = const Value.absent(),
                 Value<String?> whatsappNumber = const Value.absent(),
+                Value<String?> whatsappName = const Value.absent(),
                 Value<String?> llmProvider = const Value.absent(),
                 Value<String?> llmModel = const Value.absent(),
                 Value<bool> onboardingDone = const Value.absent(),
+                Value<String> themeColor = const Value.absent(),
+                Value<String> themeMode = const Value.absent(),
+                Value<String?> leaveSubjectTpl = const Value.absent(),
+                Value<String?> leaveBodyTpl = const Value.absent(),
+                Value<String?> wfhSubjectTpl = const Value.absent(),
+                Value<String?> wfhBodyTpl = const Value.absent(),
+                Value<DateTime?> lastBackupAt = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 userName: userName,
                 companyName: companyName,
                 emailAppPackage: emailAppPackage,
                 whatsappNumber: whatsappNumber,
+                whatsappName: whatsappName,
                 llmProvider: llmProvider,
                 llmModel: llmModel,
                 onboardingDone: onboardingDone,
+                themeColor: themeColor,
+                themeMode: themeMode,
+                leaveSubjectTpl: leaveSubjectTpl,
+                leaveBodyTpl: leaveBodyTpl,
+                wfhSubjectTpl: wfhSubjectTpl,
+                wfhBodyTpl: wfhBodyTpl,
+                lastBackupAt: lastBackupAt,
               ),
           createCompanionCallback:
               ({
@@ -2552,18 +3124,34 @@ class $$AppSettingsTableTableManager
                 Value<String> companyName = const Value.absent(),
                 Value<String?> emailAppPackage = const Value.absent(),
                 Value<String?> whatsappNumber = const Value.absent(),
+                Value<String?> whatsappName = const Value.absent(),
                 Value<String?> llmProvider = const Value.absent(),
                 Value<String?> llmModel = const Value.absent(),
                 Value<bool> onboardingDone = const Value.absent(),
+                Value<String> themeColor = const Value.absent(),
+                Value<String> themeMode = const Value.absent(),
+                Value<String?> leaveSubjectTpl = const Value.absent(),
+                Value<String?> leaveBodyTpl = const Value.absent(),
+                Value<String?> wfhSubjectTpl = const Value.absent(),
+                Value<String?> wfhBodyTpl = const Value.absent(),
+                Value<DateTime?> lastBackupAt = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 userName: userName,
                 companyName: companyName,
                 emailAppPackage: emailAppPackage,
                 whatsappNumber: whatsappNumber,
+                whatsappName: whatsappName,
                 llmProvider: llmProvider,
                 llmModel: llmModel,
                 onboardingDone: onboardingDone,
+                themeColor: themeColor,
+                themeMode: themeMode,
+                leaveSubjectTpl: leaveSubjectTpl,
+                leaveBodyTpl: leaveBodyTpl,
+                wfhSubjectTpl: wfhSubjectTpl,
+                wfhBodyTpl: wfhBodyTpl,
+                lastBackupAt: lastBackupAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(

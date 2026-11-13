@@ -8,6 +8,7 @@ import '../../data/providers.dart';
 import '../../domain/models.dart';
 import '../../services/leave_math.dart';
 import '../../services/request_composer.dart';
+import '../settings/email_template_screen.dart';
 
 class NewRequestScreen extends ConsumerStatefulWidget {
   const NewRequestScreen({super.key, this.initialDate});
@@ -104,9 +105,9 @@ class _NewRequestScreenState extends ConsumerState<NewRequestScreen>
 
   Future<void> _send({required bool whatsapp}) async {
     final s = ref.read(settingsProvider).value;
-    final recipients = (ref.read(recipientsProvider).value ?? const <Recipient>[])
-        .map((r) => r.email)
-        .toList();
+    final all = ref.read(recipientsProvider).value ?? const <Recipient>[];
+    final recipients = [for (final r in all) if (r.kind != recipientCc) r.email];
+    final cc = [for (final r in all) if (r.kind == recipientCc) r.email];
     final types = ref.read(leaveTypesProvider).value ?? const <LeaveType>[];
     final holidays = ref.read(holidaysProvider).value ?? const <Holiday>[];
     final messenger = ScaffoldMessenger.of(context);
@@ -124,7 +125,7 @@ class _NewRequestScreenState extends ConsumerState<NewRequestScreen>
     } else if (!_wfh && typeId == null) {
       problem = 'Add a leave type in Settings first';
     } else if (!whatsapp && recipients.isEmpty) {
-      problem = 'Add a recipient in Settings first';
+      problem = 'Add a To recipient in Settings first';
     }
     if (problem != null) {
       messenger.showSnackBar(SnackBar(content: Text(problem)));
@@ -154,10 +155,12 @@ class _NewRequestScreenState extends ConsumerState<NewRequestScreen>
       reason: reason,
       userName: s?.userName ?? '',
       company: s?.companyName ?? '',
+      subjectTemplate: _wfh ? s?.wfhSubjectTpl : s?.leaveSubjectTpl,
+      bodyTemplate: _wfh ? s?.wfhBodyTpl : s?.leaveBodyTpl,
     );
     final uri = whatsapp
         ? whatsappUri(s?.whatsappNumber ?? '', msg)
-        : mailtoUri(recipients, msg);
+        : mailtoUri(recipients, msg, cc: cc);
     final ok = await launchExternal(uri);
 
     if (!mounted) return;
@@ -225,8 +228,12 @@ class _NewRequestScreenState extends ConsumerState<NewRequestScreen>
             reason: _reason.text,
             userName: s?.userName ?? '',
             company: s?.companyName ?? '',
+            subjectTemplate: _wfh ? s?.wfhSubjectTpl : s?.leaveSubjectTpl,
+            bodyTemplate: _wfh ? s?.wfhBodyTpl : s?.leaveBodyTpl,
           );
     final hasWhatsapp = (s?.whatsappNumber ?? '').trim().isNotEmpty;
+    final toList = [for (final r in recipients) if (r.kind != recipientCc) r.email];
+    final ccList = [for (final r in recipients) if (r.kind == recipientCc) r.email];
 
     return Scaffold(
       appBar: AppBar(title: const Text('New request')),
@@ -333,7 +340,15 @@ class _NewRequestScreenState extends ConsumerState<NewRequestScreen>
             onChanged: (_) => setState(() {}),
           ),
 
-          const SectionHeader('Email preview'),
+          SectionHeader(
+            'Email preview',
+            trailing: TextButton.icon(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => EmailTemplateScreen(initialWfh: _wfh))),
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: const Text('Edit template'),
+            ),
+          ),
           AppCard(
             child: msg == null
                 ? Text('Pick your dates to see the email.',
@@ -341,8 +356,11 @@ class _NewRequestScreenState extends ConsumerState<NewRequestScreen>
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _PreviewRow('To',
-                          recipients.isEmpty ? 'No recipients yet' : recipients.map((r) => r.email).join(', ')),
+                      _PreviewRow('To', toList.isEmpty ? 'No recipients yet' : toList.join(', ')),
+                      if (ccList.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        _PreviewRow('Cc', ccList.join(', ')),
+                      ],
                       const Divider(height: 24),
                       _PreviewRow('Subject', msg.subject),
                       const Divider(height: 24),
