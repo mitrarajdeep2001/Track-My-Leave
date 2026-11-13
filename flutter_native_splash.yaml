@@ -1,0 +1,14 @@
+# Source art is drawn by tool/generate_icon_assets.ps1.
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#0F766E"
+  image: assets/splash/splash.png
+
+  # Android 12+ always shows the app icon in a circle on a solid colour.
+  android_12:
+    color: "#0F766E"
+    image: assets/splash/splash.png
+
+  android: true
+  ios: false
+  web: false

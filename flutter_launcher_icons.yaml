@@ -1,0 +1,12 @@
+# Source art is drawn by tool/generate_icon_assets.ps1.
+# Regenerate with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 24
+  adaptive_icon_background: "assets/icon/icon_background.png"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  # The art is already drawn inside the adaptive-icon safe zone.
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: "assets/icon/icon_monochrome.png"
