@@ -33,6 +33,16 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Lets the share sheet hand a backup file to OneDrive and other apps. -->
+        <provider
+            android:name=".BackupFileProvider"
+            android:authorities="${applicationId}.backupfiles"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/backup_share_paths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -40,6 +50,15 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <!-- Storage apps (Drive, OneDrive, JioCloud…) for backup and restore. -->
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="application/json"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT"/>
+            <data android:mimeType="application/json"/>
+        </intent>
         <intent>
             <action android:name="android.intent.action.SENDTO"/>
             <data android:scheme="mailto"/>

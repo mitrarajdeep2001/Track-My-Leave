@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../../core/widgets.dart';
 import '../../data/backup.dart';
 import '../../data/providers.dart';
+import '../../services/backup_files.dart';
+import 'backup_location_sheet.dart';
 import 'restore_flow.dart';
 
 final _fmtStamp = fmtBackupStamp;
@@ -22,21 +24,32 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
   Future<void> _save() async {
     final messenger = ScaffoldMessenger.of(context);
+    final loc = await showBackupLocationSheet(context, restore: false);
+    if (loc == null || !mounted) return;
     setState(() => _busy = true);
     try {
       final db = ref.read(databaseProvider);
       final bytes = await db.exportBackup();
       final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      final uri = await FilePicker.saveFile(
-        dialogTitle: 'Save TrackMyLeave backup',
-        fileName: 'TrackMyLeave-backup-$today.json',
-        bytes: bytes,
-        mimeType: 'application/json',
-      );
-      if (uri != null) {
+      final name = 'TrackMyLeave-backup-$today.json';
+      if (loc.isPhone) {
+        final uri = await FilePicker.saveFile(
+          dialogTitle: 'Save TrackMyLeave backup',
+          fileName: name,
+          bytes: bytes,
+          mimeType: 'application/json',
+        );
+        if (uri != null) {
+          await db.markBackedUp();
+          messenger.showSnackBar(const SnackBar(content: Text('Backup saved')));
+        }
+      } else {
+        await saveToApp(loc.app!.package, name, bytes);
+        // Storage apps do not report back whether the upload finished.
         await db.markBackedUp();
-        messenger.showSnackBar(const SnackBar(content: Text('Backup saved')));
       }
+    } on BackupException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('Could not save the backup: $e')));
     } finally {
@@ -110,9 +123,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
           ),
           const SectionHeader('Good to know'),
           _Tip(
-            icon: Icons.add_to_drive_outlined,
-            text: 'To save to Google Drive or OneDrive, pick it in the menu (☰) of the save screen. '
-                'The app has to be installed and signed in on your phone.',
+            icon: Icons.cloud_outlined,
+            text: 'You choose where each backup goes: this phone or a storage app such as '
+                'Google Drive, OneDrive or JioCloud. Storage apps appear once installed and signed in.',
+          ),
+          _Tip(
+            icon: Icons.filter_alt_outlined,
+            text: 'When restoring, only backup files are shown where the storage app supports it. '
+                'Any other file you pick is rejected and nothing changes.',
           ),
           _Tip(
             icon: Icons.key_off_outlined,

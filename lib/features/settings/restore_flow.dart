@@ -1,10 +1,11 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/backup.dart';
 import '../../data/providers.dart';
+import '../../services/backup_files.dart';
+import 'backup_location_sheet.dart';
 
 final fmtBackupStamp = DateFormat('d MMM y, h:mm a');
 
@@ -21,15 +22,12 @@ Future<bool> pickAndRestoreBackup(
 }) async {
   final messenger = ScaffoldMessenger.of(context);
   BackupContents contents;
+  final loc = await showBackupLocationSheet(context, restore: true);
+  if (loc == null || !context.mounted) return false;
   try {
-    // Any type: cloud providers often report .json files as a generic type.
-    final f = await FilePicker.pickFile(dialogTitle: 'Choose a TrackMyLeave backup');
+    final f = await pickBackupFile(fromPackage: loc.app?.package);
     if (f == null) return false;
-    final size = await f.length();
-    if (size != null && size > maxBackupBytes) {
-      throw const BackupException('That file is too large to be a TrackMyLeave backup.');
-    }
-    contents = BackupContents.parse(await f.readAsBytes());
+    contents = BackupContents.parse(f.bytes);
   } on BackupException catch (e) {
     messenger.showSnackBar(SnackBar(content: Text(e.message)));
     return false;

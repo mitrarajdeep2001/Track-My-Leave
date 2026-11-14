@@ -47,3 +47,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // FileProvider and ContextCompat for sharing backups (MainActivity).
+    implementation("androidx.core:core:1.13.1")
+}
